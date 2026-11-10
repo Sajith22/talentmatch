@@ -28,10 +28,10 @@ try {
     await client.query('DELETE FROM candidates');
     await client.query('DELETE FROM jobs');
     for (const { id, title, description, skills, expected_years } of jobs) {
-      await client.query('INSERT INTO jobs VALUES ($1,$2,$3,$4,$5)', [id, title, description, skills, expected_years]);
+      await client.query('INSERT INTO jobs (id, title, description, skills, expected_years) VALUES ($1,$2,$3,$4,$5)', [id, title, description, skills, expected_years]);
     }
     for (const c of candidates) {
-      await client.query('INSERT INTO candidates VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)', [
+      await client.query('INSERT INTO candidates (id, name, email, phone, designation, company, experience, skills, raw, history) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)', [
         c.id, c.name, c.email, c.phone, c.designation, c.company, c.experience, c.skills, c.raw, JSON.stringify(c.history)
       ]);
     }

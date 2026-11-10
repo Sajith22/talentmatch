@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Candidate({ params }) {
   const { id } = await params;
-  const [candidate] = await rows('SELECT * FROM candidates WHERE id=$1', [id]);
+  const [candidate] = await rows('SELECT id, name, email, phone, designation, company, experience, skills, raw, history FROM candidates WHERE id=$1', [id]);
   if (!candidate) notFound();
   const jobs = await rows(`SELECT j.id,j.title,m.total_score,m.reason FROM matches m
     JOIN jobs j ON j.id=m.job_id WHERE m.candidate_id=$1

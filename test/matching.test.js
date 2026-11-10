@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync, existsSync } from 'node:fs';
+import { parse as parseCsv } from 'csv-parse/sync';
 import { parseCandidate, parseJob, parseDateRange, mergeIntervals, CONFIG } from '../lib/parse.js';
 import { score, candidateEvidence, matchSkillToken } from '../lib/matching.js';
 
@@ -214,4 +216,26 @@ test('extracts a job title from the first sentence', () => {
   const job = parseJob('46795', 'We are seeking a Paralegal, Privacy and Information Management to join our team.\nRequired Skills\n- Legal Research');
   assert.equal(job.title, 'Paralegal, Privacy and Information Management');
   assert.equal(job.expected_years, 3);
+});
+
+test('results/top10.csv contains exactly 100 rows, 10 per job, ranks 1 to 10 with exact column order', () => {
+  if (!existsSync('results/top10.csv')) return;
+  const content = readFileSync('results/top10.csv', 'utf8');
+  const records = parseCsv(content, { columns: true, skip_empty_lines: true });
+  assert.equal(records.length, 100, 'Must have exactly 100 data rows');
+
+  const expectedHeaders = ['job_id', 'rank', 'candidate_id', 'total_score', 'skills_score', 'experience_score', 'designation_score', 'reason'];
+  assert.deepEqual(Object.keys(records[0]), expectedHeaders, 'Columns must match expected headers and order exactly');
+
+  const jobs = new Map();
+  for (const row of records) {
+    if (!jobs.has(row.job_id)) jobs.set(row.job_id, []);
+    jobs.get(row.job_id).push(row);
+  }
+  assert.equal(jobs.size, 10, 'Must cover 10 jobs');
+  for (const [jobId, rows] of jobs.entries()) {
+    assert.equal(rows.length, 10, `Job ${jobId} must have 10 rows`);
+    const ranks = rows.map((r) => Number(r.rank));
+    assert.deepEqual(ranks, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], `Job ${jobId} ranks must run 1 to 10`);
+  }
 });

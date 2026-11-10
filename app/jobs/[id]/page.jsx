@@ -10,13 +10,15 @@ export default async function Job({ params, searchParams }) {
   const { id } = await params;
   const query = await searchParams;
   const min = readNumber(query.min, 0, 100, 0);
-  const [job] = await rows('SELECT * FROM jobs WHERE id=$1', [id]);
+  const [job] = await rows('SELECT id, title, description, skills, expected_years FROM jobs WHERE id=$1', [id]);
   if (!job) notFound();
   const [{ ranked, visible }] = await rows(
     'SELECT count(*)::int AS ranked, count(*) FILTER (WHERE total_score >= $2)::int AS visible FROM matches WHERE job_id=$1', [id, min]);
   const pages = Math.max(1, Math.ceil(visible / pageSize));
   const page = readNumber(query.page, 1, pages, 1);
-  const matches = await rows(`SELECT m.*, c.name, c.designation FROM matches m JOIN candidates c ON c.id=m.candidate_id
+  const matches = await rows(`SELECT m.job_id, m.candidate_id, m.total_score, m.skills_score, m.experience_score, m.designation_score,
+    m.matched, m.missing, m.reason, m.skills_method, m.experience_method, m.designation_method,
+    c.name, c.designation FROM matches m JOIN candidates c ON c.id=m.candidate_id
     WHERE job_id=$1 AND total_score >= $2 ORDER BY total_score DESC, skills_score DESC, candidate_id::int
     LIMIT $3 OFFSET $4`, [id, min, pageSize, (page - 1) * pageSize]);
   return <>
