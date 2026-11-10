@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Candidate {
+  id          String   @id 
+  name        String
+  email       String?
+  phone       String?
+  designation String?
+  company     String?
+  totalYears  Float?
+  skills      String[] 
+  rawText     String
+  createdAt   DateTime @default(now())
+
+  matches     Match[]
+}
+
+model Job {
+  id             String   @id 
+  title          String
+  description    String
+  requiredSkills String[]
+  expectedYears  Float?
+  createdAt      DateTime @default(now())
+
+  matches        Match[]
+}
+
+model Match {
+  id              String   @id @default(cuid())
+  jobId           String
+  candidateId     String
+  totalScore      Float
+  skillsScore     Float
+  experienceScore Float
+  designationScore Float
+  matchedSkills   String[]
+  missingSkills   String[]
+  reason          String
+  rank            Int?
+
+  job             Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate       Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, candidateId])
+  @@index([jobId, totalScore])
+}

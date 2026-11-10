@@ -1,0 +1,37 @@
+{
+  "name": "talentmatch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "node --test",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "import": "node --env-file-if-exists=.env scripts/import.js",
+    "match": "node --env-file-if-exists=.env scripts/match.js",
+    "postinstall": "prisma skills sync || exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@prisma/client": "^6.19.3",
+    "next": "^16.4.6",
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3"
+  }
+}
