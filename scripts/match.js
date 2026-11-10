@@ -2,9 +2,7 @@ import { mkdir, writeFile, rename } from 'node:fs/promises';
 import { stringify } from 'csv-stringify/sync';
 import { close, rows, transaction } from '../lib/db.js';
 import { byRank, candidateEvidence, score } from '../lib/matching.js';
-import { getJobSkillAliases, getJobExpectedYears, getJobDesignationLabels, isLlmEnabled } from '../lib/llm.js';
-
-let failures = 0;
+import { getJobSkillAliases, getJobExpectedYears, getJobDesignationLabels } from '../lib/llm.js';
 
 try {
   const jobs = await rows('SELECT id, title, description, skills, expected_years FROM jobs ORDER BY id');
@@ -36,7 +34,7 @@ try {
         const desigLabel = desigInfo?.label ?? 'unrelated';
         const desigMethod = desigInfo?.method ?? 'rule';
 
-        const scored = score(jobWithExpected, candidate, candEvidence, { designationLabel: desigLabel });
+        const scored = score(jobWithExpected, candidate, candEvidence, { aliasesMap, designationLabel: desigLabel });
         scored.methods = {
           skills: skillsMethod,
           experience: experienceMethod,

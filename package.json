@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "node --test",
+    "test:llm:live": "node --env-file-if-exists=.env scripts/llm-smoke.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
